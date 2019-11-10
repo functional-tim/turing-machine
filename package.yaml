@@ -21,12 +21,14 @@ description:         Please see the README on GitHub at <https://github.com/Craz
 
 dependencies:
 - base >= 4.7 && < 5
+- containers
+- text
 
 library:
   source-dirs: src
 
 executables:
-  turing-machine-exe:
+  turing-machine:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
