@@ -93,10 +93,12 @@ step (TM st@(S s) (Table ta) (Tape lt pos rt)) = TM (trdC card) (Table ta) (move
 
 run :: TuringMachine -> IO ()
 run (TM HALT cs ts) = print ts
-run tm@(TM st@(S s) (Table ta) ts) = do
-    print ts
-    let ntm = step tm
-    run ntm
+--run tm@(TM st@(S s) (Table ta) ts) =
+--    do
+--        print ts
+--        let ntm = step tm
+--        run ntm
+run tm@(TM s ta ts) = print ts >> let ntm = step tm in run ntm
 
 
 getTape :: TuringMachine -> Tape
