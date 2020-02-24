@@ -106,7 +106,7 @@ sndC (_, x, _) = x
 trdC :: (Char, Move, State) -> State
 trdC (_, _, x) = x
 
--- This function moves the head of the Turing machine.
+-- |This function moves the head of the Turing machine.
 move :: Move -> Tape -> Tape
 move m (Tape lt pos rt)
   | m == L && T.length lt == 0 = Tape (T.pack ['0']) '0' (T.cons pos rt)
@@ -135,7 +135,7 @@ stepP tm@(TM s (Table ta) (Tape lt pos rt) n) = do
 
 -- |Running the Turing machine without any output until the Turing machine
 -- halts.
--- It returns then a tuple of the tape and the number of steps.
+-- It returns the finished Turing machine.
 run :: TuringMachine -> TuringMachine
 run tm@(TM "HALT" ta ts n) = tm
 run tm@(TM s ta ts n) = run (step tm)
@@ -153,17 +153,6 @@ runP tm@(TM s ta ts n) = do
     print (getTape (step tm))
     ntm <- runP (step tm)
     return ntm
---runP :: TuringMachine -> Integer -> IO Tape
---runP (TM "HALT" ta ts) _ = return ts
---runP tm@(TM s ta ts) n = do
---    print ts
---    putStrLn ""
---    putStr "Steps: "
---    print (n+1)
---    let ones = count1s ts
---    putStr "Ones: "
---    print ones
---    let ntm = step tm in runP ntm (n+1)
 
 
 getTape :: TuringMachine -> Tape
