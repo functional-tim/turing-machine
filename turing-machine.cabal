@@ -51,6 +51,7 @@ executable turing-machine
     , containers
     , filepath
     , optparse-applicative
+    , semigroups
     , text
     , turing-machine
     , yaml
