@@ -1,128 +1,177 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Lib
-    ( Card
-    , Move
+    ( count1s
+    , Move(L,R)
     , run
+    , runP
     , State
     , step
-    , Tape
-    , tm0
-    , tmB2
+    , stepP
+    , Table(Table)
+    , Tape(Tape)
+    , toMove
+    , TuringMachine(TM)
     ) where
 
-import qualified Data.Char as C
+import           Data.Char
+import           Data.Maybe
+import           Data.Yaml
+import           GHC.Generics
+
 import qualified Data.Map  as M
 import qualified Data.Text as T
 
 
+-- |Implementation of the movement of the head of the Turing machine.
+data Move =
+    -- |Left is used to move the head of the Turing machine to the left.
+    L |
+    -- |Right is used to move the head of the Turing machine to the right.
+    R
+    deriving(Eq, Generic, Read)
 
-data Move = L | R deriving(Eq, Read)
+toMove :: T.Text -> Maybe Move
+toMove "L" = Just L
+toMove "R" = Just R
+toMove _ = Nothing
 
-data State = S String | HALT deriving(Eq, Ord, Read)
+-- |The State of the Turing machine is saved as a String.
+type State = T.Text
 
-data Tape = Tape [Integer] Integer [Integer] deriving(Read)
+-- |Implementation of the tape of the Turing machine. The Symbols are
+-- stored in two Strings and a Char.
+-- The String on the left is the tape left of the head and the String on
+-- the right is the tape right of the head.
+-- The Char is the Symbol the head is over at a given moment.
+-- In this implementation of a Turing machine the head is part of the tape
+-- itself.
+data Tape = Tape T.Text Char T.Text deriving(Read)
 
-data Card = Card (M.Map Integer (Integer, Move, State)) deriving(Read)
+-- |Implementation of the table of instructions.
+-- The States of the Turing machine are the keys of a Map.
+-- The values of this Map are the instructions.
+-- The instructions are another Map.
+-- The keys of that Map are the read Symbol.
+-- The values of that Map are a tuple which tells the Turing machine what
+-- to do.
+-- The first element of the tuple is the Symbol to write.
+-- The second element is the movement the head has to perform.
+-- The third element is the State in which the Turing machine switches
+-- afterwads.
+data Table = Table (M.Map State (M.Map Char (Char, Move, State))) deriving(Read)
 
-data Table = Table (M.Map State Card) deriving(Read)
-
-data TuringMachine = TM State Table Tape deriving(Read)
-
+-- |The implementation of the Turing machine.
+-- The Turing machine has three values: the State it is in, the table of
+-- instructions and the tape.
+data TuringMachine = TM State Table Tape Integer deriving(Read)
 
 instance Show Move where
     show L = "L"
     show R = "R"
 
-instance Show State where
-    show HALT = "HALT"
-    show (S x) = x ++ "   "
-
 instance Show Tape where
-    show (Tape xs y zs) = txs ++ "[" ++ (show y) ++ "]" ++ tzs
-        where txs = filter (/='[') (filter (/=',') (filter (/=']') (show xs)))
-              tzs = filter (/='[') (filter (/=',') (filter (/=']') (show zs)))
-
-instance Show Card where
-    show (Card cs) = "(0," ++ (show (cs M.! 0)) ++ ")|(1," ++ (show (cs M.! 1)) ++ ")"
+    show (Tape xs y zs) = T.unpack (T.append xs (T.append "[" (T.cons y (T.append "]" zs))))
 
 instance Show Table where
     show (Table ts)
-      | M.null ts = ""
-      | otherwise = (show h) ++ ": " ++ (show (ts M.! h)) ++ "\n" ++ (show (Table nts))
-        where h = head (M.keys ts)
-              nts = M.delete h ts
---    show (Table ts) = show (M.toList ts)
+        | M.null ts = ""
+        | otherwise = (T.unpack h) ++ ":  " ++ tst ++ "\n" ++ (show (Table nts))
+            where h   = head (M.keys ts)
+                  tst = showSymbols (M.toList (ts M.! h))
+                  nts = M.delete h ts
+
+showSymbols :: [(Char, (Char, Move, T.Text))] -> String
+showSymbols [] = []
+showSymbols (x:xs) = (showSymbols' x) ++ (showSymbols xs)
+showSymbols' :: (Char, (Char, Move, T.Text)) -> String
+showSymbols' (x,(y0,y1,y2)) = [x] ++ ": " ++ "(" ++ [y0] ++ ", " ++ (show y1) ++ ", " ++ (T.unpack y2) ++ ")\t"
 
 instance Show TuringMachine where
-    show (TM s ta tp) = "TM\nState: " ++ show s ++ "\n" ++ show ta ++ show tp
+    show (TM s ta tp n) = "TM\nState: " ++ (T.unpack s) ++ "\n" ++ show ta ++ show tp ++ "Steps: " ++ show n
+
+instance FromJSON Move
+instance ToJSON Move
+--    parseJSON (Object v) = v .: "L" <*> v .: "R"
 
 
-fstC :: (Integer, Move, State) -> Integer
+fstC :: (Char, Move, State) -> Char
 fstC (x, _, _) = x
 
-sndC :: (Integer, Move, State) -> Move
+sndC :: (Char, Move, State) -> Move
 sndC (_, x, _) = x
 
-trdC :: (Integer, Move, State) -> State
+trdC :: (Char, Move, State) -> State
 trdC (_, _, x) = x
 
-
-readCard :: State -> M.Map State Card -> M.Map Integer (Integer, Move, State)
-readCard s cs = readCard1 (cs M.! s)
-
-readCard1 :: Card -> M.Map Integer (Integer, Move, State)
-readCard1 (Card c) = c
-
-
+-- This function moves the head of the Turing machine.
 move :: Move -> Tape -> Tape
 move m (Tape lt pos rt)
-  | m == L && length lt == 0 = Tape ([0]) 0 (pos:rt)
-  | m == L = Tape (init lt) (last lt) (pos:rt)
-  | m == R && length rt == 0 = Tape (lt ++ [pos]) 0 ([0])
-  | m == R = Tape (lt ++ [pos]) (head rt) (tail rt)
+  | m == L && T.length lt == 0 = Tape (T.pack ['0']) '0' (T.cons pos rt)
+  | m == L = Tape (T.init lt) (T.last lt) (T.cons pos rt)
+  | m == R && T.length rt == 0 = Tape (T.snoc lt pos) '0' (T.pack ['0'])
+  | m == R = Tape (T.snoc lt pos) (T.head rt) (T.tail rt)
 
-
+-- |Each step of the Turing machine is implemented in this function.
 step :: TuringMachine -> TuringMachine
-step (TM HALT cs ts) = TM HALT cs ts
-step (TM st@(S s) (Table ta) (Tape lt pos rt)) = TM (trdC card) (Table ta) (move (sndC card) (Tape lt uPos rt))
-    where card = (readCard st ta) M.! pos
+step (TM "HALT" ta ts n) = TM "HALT" ta ts (n+1)
+step (TM s (Table ta) (Tape lt pos rt) n) = TM (trdC card) (Table ta) (move (sndC card) (Tape lt uPos rt)) (n+1)
+    where card = (ta M.! s) M.! pos
           uPos = fstC card
 
+stepP :: TuringMachine -> IO TuringMachine
+stepP tm@(TM "HALT" ta ts n) = return tm
+stepP tm@(TM s (Table ta) (Tape lt pos rt) n) = do
+    putStrLn ""
+    putStr "State: "
+    print s
+    putStr "Step: "
+    print (n+1)
+    print (getTape (step tm))
+    return (step tm)
+    
 
-run :: TuringMachine -> IO ()
-run (TM HALT cs ts) = print ts
---run tm@(TM st@(S s) (Table ta) ts) =
---    do
---        print ts
---        let ntm = step tm
---        run ntm
-run tm@(TM s ta ts) = print ts >> let ntm = step tm in run ntm
+-- |Running the Turing machine without any output until the Turing machine
+-- halts.
+-- It returns then a tuple of the tape and the number of steps.
+run :: TuringMachine -> TuringMachine
+run tm@(TM "HALT" ta ts n) = tm
+run tm@(TM s ta ts n) = run (step tm)
+
+
+-- |Running the Turing machine with output after each step.
+runP :: TuringMachine -> IO TuringMachine
+runP tm@(TM "HALT" ta ts n) = return tm
+runP tm@(TM s ta ts n) = do
+    putStrLn ""
+    putStr "State: "
+    print s
+    putStr "Step: "
+    print (n+1)
+    print (getTape (step tm))
+    ntm <- runP (step tm)
+    return ntm
+--runP :: TuringMachine -> Integer -> IO Tape
+--runP (TM "HALT" ta ts) _ = return ts
+--runP tm@(TM s ta ts) n = do
+--    print ts
+--    putStrLn ""
+--    putStr "Steps: "
+--    print (n+1)
+--    let ones = count1s ts
+--    putStr "Ones: "
+--    print ones
+--    let ntm = step tm in runP ntm (n+1)
 
 
 getTape :: TuringMachine -> Tape
-getTape (TM s cs ts) = ts
+getTape (TM s ta ts n) = ts
 
 
-tape0 = Tape [0, 0, 0, 0] 0 [0, 0, 0, 0]
-tape1 = Tape [0] 0 []
-
---tapeA = Tape ["0", "0", "0", "0"] "0" ["0", "0", "0", "0"]
-
-
-card00 = Card (M.fromList [(0, (1, R, (S "A"))), (1, (1, R, (S "B")))])
-card01 = Card (M.fromList [(0, (1, R, HALT)), (1, (0, R, HALT))])
-table0 = Table (M.fromList [((S "A"), card00), ((S "B"), card01)])
-
-card10 = Card (M.fromList [(0, (1, R, (S "A"))), (1, (1, R, (S "B")))])
-card11 = Card (M.fromList [(0, (1, R, (S "C"))), (1, (1, R, (S "C")))])
-card12 = Card (M.fromList [(0, (1, R, HALT)), (1, (0, R, HALT))])
-table1 = Table (M.fromList [((S "A"), card10), ((S "B"), card11), ((S "C"), card12)])
-
-cardB20 = Card (M.fromList [(0, (1, R, (S "B"))), (1, (1, L, (S "B")))])
-cardB21 = Card (M.fromList [(0, (1, L, (S "A"))), (1, (1, R, HALT))])
-tableB2 = Table (M.fromList [((S "A"), cardB20), ((S "B"), cardB21)])
-
-tm0 = TM (S "A") table0 tape0
-tmB2 = TM (S "A") tableB2 tape0
+count1s :: TuringMachine -> Integer
+count1s (TM s ta (Tape xs y zs) n) = (foldr (+) 0 nxs) + ny + (foldr (+) 0 nzs)
+    where nxs = map (toInteger) (map (digitToInt) (T.unpack xs))
+          nzs = map (toInteger) (map (digitToInt) (T.unpack zs))
+          ny  = toInteger (digitToInt y)

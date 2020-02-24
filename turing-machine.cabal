@@ -1,0 +1,72 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 6876f54a40dc9466d7170f0e72e6aadd694bb924cc62d08f1d2f48bfd87e6213
+
+name:           turing-machine
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/CrazyMind102/turing-machine#readme>
+homepage:       https://github.com/CrazyMind102/turing-machine#readme
+bug-reports:    https://github.com/CrazyMind102/turing-machine/issues
+author:         CrazyMind102
+maintainer:     tim.gravert@gmx-topmail.de
+copyright:      Tim Gravert
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/CrazyMind102/turing-machine
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_turing_machine
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , text
+    , yaml
+  default-language: Haskell2010
+
+executable turing-machine
+  main-is: Main.hs
+  other-modules:
+      Paths_turing_machine
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , filepath
+    , optparse-applicative
+    , text
+    , turing-machine
+    , yaml
+  default-language: Haskell2010
+
+test-suite turing-machine-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_turing_machine
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , text
+    , turing-machine
+  default-language: Haskell2010
