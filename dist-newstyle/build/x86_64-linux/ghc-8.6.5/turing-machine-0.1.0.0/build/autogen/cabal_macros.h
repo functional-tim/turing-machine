@@ -33,17 +33,6 @@
   (major1) == 0 && (major2) == 6 && (minor) <= 0)
 #endif /* MIN_VERSION_containers */
 
-/* package libiserv-8.6.3 */
-#ifndef VERSION_libiserv
-#define VERSION_libiserv "8.6.3"
-#endif /* VERSION_libiserv */
-#ifndef MIN_VERSION_libiserv
-#define MIN_VERSION_libiserv(major1,major2,minor) (\
-  (major1) <  8 || \
-  (major1) == 8 && (major2) <  6 || \
-  (major1) == 8 && (major2) == 6 && (minor) <= 3)
-#endif /* MIN_VERSION_libiserv */
-
 /* package text-1.2.3.1 */
 #ifndef VERSION_text
 #define VERSION_text "1.2.3.1"
@@ -55,15 +44,26 @@
   (major1) == 1 && (major2) == 2 && (minor) <= 3)
 #endif /* MIN_VERSION_text */
 
-/* tool gcc-9.2.0 */
+/* package yaml-0.11.2.0 */
+#ifndef VERSION_yaml
+#define VERSION_yaml "0.11.2.0"
+#endif /* VERSION_yaml */
+#ifndef MIN_VERSION_yaml
+#define MIN_VERSION_yaml(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  11 || \
+  (major1) == 0 && (major2) == 11 && (minor) <= 2)
+#endif /* MIN_VERSION_yaml */
+
+/* tool gcc-9.2.1 */
 #ifndef TOOL_VERSION_gcc
-#define TOOL_VERSION_gcc "9.2.0"
+#define TOOL_VERSION_gcc "9.2.1"
 #endif /* TOOL_VERSION_gcc */
 #ifndef MIN_TOOL_VERSION_gcc
 #define MIN_TOOL_VERSION_gcc(major1,major2,minor) (\
   (major1) <  9 || \
   (major1) == 9 && (major2) <  2 || \
-  (major1) == 9 && (major2) == 2 && (minor) <= 0)
+  (major1) == 9 && (major2) == 2 && (minor) <= 1)
 #endif /* MIN_TOOL_VERSION_gcc */
 
 /* tool ghc-8.6.5 */
@@ -143,15 +143,15 @@
   (major1) == 8 && (major2) == 6 && (minor) <= 5)
 #endif /* MIN_TOOL_VERSION_runghc */
 
-/* tool strip-2.32 */
+/* tool strip-2.34 */
 #ifndef TOOL_VERSION_strip
-#define TOOL_VERSION_strip "2.32"
+#define TOOL_VERSION_strip "2.34"
 #endif /* TOOL_VERSION_strip */
 #ifndef MIN_TOOL_VERSION_strip
 #define MIN_TOOL_VERSION_strip(major1,major2,minor) (\
   (major1) <  2 || \
-  (major1) == 2 && (major2) <  32 || \
-  (major1) == 2 && (major2) == 32 && (minor) <= 0)
+  (major1) == 2 && (major2) <  34 || \
+  (major1) == 2 && (major2) == 34 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_PACKAGE_KEY
