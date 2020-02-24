@@ -7,7 +7,7 @@ cabal-version: 1.12
 -- hash: 6876f54a40dc9466d7170f0e72e6aadd694bb924cc62d08f1d2f48bfd87e6213
 
 name:           turing-machine
-version:        0.1.0.0
+version:        1.0.0.0
 description:    Please see the README on GitHub at <https://github.com/CrazyMind102/turing-machine#readme>
 homepage:       https://github.com/CrazyMind102/turing-machine#readme
 bug-reports:    https://github.com/CrazyMind102/turing-machine/issues
