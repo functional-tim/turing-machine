@@ -1,6 +1,3 @@
-include:
-  - template: License-Scanning.gitlab-ci.yml
-
 stages:
   - build
 
@@ -19,3 +16,6 @@ build-backend:
     - stack
       --stack-root ${STACK_ROOT}
       build
+
+include:
+  - template: License-Scanning.gitlab-ci.yml
