@@ -34,19 +34,38 @@ data TuringMachineParser = TuringMachineParser
   { optCommand :: Command
   , startState :: String
   , quiet      :: Bool
-  , print      :: Bool
   }
 
-data Command = Run FilePath | Step FilePath | Count FilePath
+data Command = Run FilePath Bool | Step FilePath | Count FilePath Bool
 
 runC :: Parser Command
-runC = Run <$> argument str (metavar "FILE")
+runC = Run
+  <$> argument str
+    ( metavar "FILE"
+    )
+  <*> switch
+    ( long "print"
+    <> short 'p'
+    <> help "Wheter to print out the step/s"
+    )
 
 stepC :: Parser Command
-stepC = Step <$> argument str (metavar "FILE")
+stepC = Step
+  <$> argument str
+    ( metavar "FILE"
+    )
 
 countC :: Parser Command
-countC = Count <$> argument str (metavar "FILE")
+countC = Count
+  <$> argument str
+    ( metavar "FILE"
+    )
+  <*> switch
+    ( long "print"
+    <> short 'p'
+    <> help "Wheter to print out the step/s"
+    )
+    
 
 turingMachineParser :: String -> Parser TuringMachineParser
 turingMachineParser st = TuringMachineParser
@@ -58,8 +77,7 @@ turingMachineParser st = TuringMachineParser
   <*> strOption
     ( long "start-state"
     <> short 's'
-    <> metavar "START-STATE"
-    <> showDefault
+    <> metavar "STATE"
     <> value st
     <> help "Which state the Turing machine should start in"
     )
@@ -67,11 +85,6 @@ turingMachineParser st = TuringMachineParser
     ( long "quiet"
     <> short 'q'
     <> help "Whether to be quiet"
-    )
-  <*> switch
-    ( long "print"
-    <> short 'p'
-    <> help "Wheter to print out the step/s"
     )
 
 fileHandler :: FilePath -> IO Input
@@ -82,96 +95,126 @@ fileHandler f = do
     Right x -> return x
 
 tmParser :: TuringMachineParser -> IO (TuringMachine,FilePath,Maybe Integer)
-tmParser (TuringMachineParser (Run f) "" True _) = do
+
+tmParser (TuringMachineParser (Run f _) "" True) = do
   file <- fileHandler f
   let tmf = input file
   return ((run (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Run f) "" False False) = do
+tmParser (TuringMachineParser (Run f False) "" False) = do
   file <- fileHandler f
   let tmf = input file
-  return ((run (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Run f) "" False True) = do
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = run tm
+  putStrLn (show ntm)
+  return (ntm,f,Nothing)
+tmParser (TuringMachineParser (Run f True) "" False) = do
   file <- fileHandler f
   let tmf = input file
-  tm <- runP (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))
-  return (tm,f,Nothing)
-tmParser (TuringMachineParser (Step f) "" True _) = do
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn (show tm)
+  ntm <- runP tm
+  return (ntm,f,Nothing)
+
+tmParser (TuringMachineParser (Step f) "" True) = do
   file <- fileHandler f
   let tmf = input file
-  return ((step (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Step f) "" False False) = do
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  return ((step tm),f,Nothing)
+tmParser (TuringMachineParser (Step f) "" False) = do
   file <- fileHandler f
   let tmf = input file
-  return ((step (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Step f) "" False True) = do
-  file <- fileHandler f
-  let tmf = input file
-  tm <- stepP (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))
-  return (tm,f,Nothing)
-tmParser (TuringMachineParser (Count f) "" True _) = do
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = step tm
+  putStrLn (show ntm)
+  return (ntm,f,Nothing)
+
+tmParser (TuringMachineParser (Count f _) "" True) = do
   file <- fileHandler f
   let tmf = input file
   let tm = run (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))
   let output = Just (count1s tm)
   return (tm,f,output)
-tmParser (TuringMachineParser (Count f) "" False False) = do
+tmParser (TuringMachineParser (Count f False) "" False) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = run (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))
-  let output = Just (count1s tm)
-  return (tm,f,output)
-tmParser (TuringMachineParser (Count f) "" False True) = do
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = run tm
+  let output = Just (count1s ntm)
+  putStrLn (show ntm)
+  putStrLn ("\nOnes: " ++ (show (fromJust output)))
+  return (ntm,f,output)
+tmParser (TuringMachineParser (Count f True) "" False) = do
   file <- fileHandler f
   let tmf = input file
-  tm <- runP (TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf))
+  let tm = TM (fstT tmf) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn (show tm)
+  tm <- runP tm
   let output = Just (count1s tm)
-  putStrLn ("\nOnes: " ++ (show (fromJust output)) ++ "\n")
+  putStrLn ("\nOnes: " ++ (show (fromJust output)))
   return (tm,f,output)
-tmParser (TuringMachineParser (Run f) st True _) = do
+
+tmParser (TuringMachineParser (Run f _) st True) = do
   file <- fileHandler f
   let tmf = input file
   return ((run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Run f) st False False) = do
+tmParser (TuringMachineParser (Run f False) st False) = do
   file <- fileHandler f
   let tmf = input file
-  return ((run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Run f) st False True) = do
+  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = run tm
+  putStrLn (show ntm)
+  return (ntm,f,Nothing)
+tmParser (TuringMachineParser (Run f True) st False) = do
   file <- fileHandler f
   let tmf = input file
-  tm <- runP (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
-  return (tm,f,Nothing)
-tmParser (TuringMachineParser (Step f) st True _) = do
+  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  ntm <- runP tm
+  return (ntm,f,Nothing)
+
+tmParser (TuringMachineParser (Step f) st True) = do
   file <- fileHandler f
   let tmf = input file
   return ((step (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Step f) st False False) = do
+tmParser (TuringMachineParser (Step f) st False) = do
   file <- fileHandler f
   let tmf = input file
-  return ((step (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
-tmParser (TuringMachineParser (Step f) st False True) = do
-  file <- fileHandler f
-  let tmf = input file
-  tm <- stepP (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
-  return (tm,f,Nothing)
-tmParser (TuringMachineParser (Count f) st True _) = do
+  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = step tm
+  putStrLn (show ntm)
+  return (ntm,f,Nothing)
+
+tmParser (TuringMachineParser (Count f _) st True) = do
   file <- fileHandler f
   let tmf = input file
   let tm = run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
   let output = Just (count1s tm)
   return (tm,f,output)
-tmParser (TuringMachineParser (Count f) st False False) = do
+tmParser (TuringMachineParser (Count f False) st False) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
-  let output = Just (count1s tm)
-  return (tm,f,output)
-tmParser (TuringMachineParser (Count f) st False True) = do
+  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn ((show tm) ++ "\n")
+  let ntm = run tm
+  let output = Just (count1s ntm)
+  putStrLn (show ntm)
+  putStrLn ("\nOnes: " ++ (show (fromJust output)))
+  return (ntm,f,output)
+tmParser (TuringMachineParser (Count f True) st False) = do
   file <- fileHandler f
   let tmf = input file
-  tm <- runP (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
-  let output = Just (count1s tm)
-  putStrLn ("\nOnes: " ++ (show (fromJust output)) ++ "\n")
-  return (tm,f,output)
+  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  putStrLn (show tm)
+  ntm <- runP tm
+  putStrLn (show ntm)
+  let output = Just (count1s ntm)
+  putStrLn ("\nOnes: " ++ (show (fromJust output)))
+  return (ntm,f,output)
 
 
 data Input = Input

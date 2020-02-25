@@ -80,7 +80,7 @@ data Tape = Tape T.Text Char T.Text deriving(Read)
 
 -- |Instance of Show for TuringMachine
 instance Show TuringMachine where
-    show (TM s ta tp n) = "TM\nState: " ++ (T.unpack s) ++ "\n" ++ show ta ++ show tp ++ "Steps: " ++ show n
+    show (TM s ta tp n) = "TM\nState: " ++ (T.unpack s) ++ "\n" ++ "Steps: " ++ show n ++ "\n" ++ show ta ++ show tp
 
 -- |Instance of Show for Table
 instance Show Table where
