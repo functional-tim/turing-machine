@@ -2,10 +2,14 @@ image: fpco/stack-build:lts-8.15
 
 stages:
   - build
+ 
+variables:
+  STACK_OPTS: "--system-ghc"
 
 build:
   stage: build
   script:
+    - make setup
     - make build
 
 cache:
