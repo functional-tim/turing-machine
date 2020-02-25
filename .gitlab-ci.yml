@@ -1,4 +1,5 @@
 stages:
+  - license_scanning
   - build
 
 variables:
@@ -16,6 +17,9 @@ build-backend:
     - stack
       --stack-root ${STACK_ROOT}
       build
+
+license_scanning:
+  stage: .pre
 
 include:
   - template: License-Scanning.gitlab-ci.yml
