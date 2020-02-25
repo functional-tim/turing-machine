@@ -1,0 +1,15 @@
+image: fpco/stack-build:lts-8.15
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - make build
+
+cache:
+  paths:
+    - .stack
+    - .stack-work
+    - target
