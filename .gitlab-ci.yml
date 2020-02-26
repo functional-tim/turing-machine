@@ -20,7 +20,7 @@ build-backend:
       build
 
 license_scanning:
-  stage: .pre
+  stage: .post
 
 include:
   - template: License-Scanning.gitlab-ci.yml
