@@ -14,7 +14,7 @@ build-backend:
       - ${STACK_ROOT}
       - .stack-work
   script:
-    - curl "https://gitlab.com/CrazyMind102/turing-machine/-/raw/master/LICENSE?inline=false" .
+    - curl "https://gitlab.com/CrazyMind102/turing-machine/-/raw/master/LICENSE?inline=false" > LICENSE
     - stack
       --stack-root ${STACK_ROOT}
       build
