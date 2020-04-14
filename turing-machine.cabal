@@ -1,16 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
---
--- see: https://github.com/sol/hpack
---
--- hash: 6876f54a40dc9466d7170f0e72e6aadd694bb924cc62d08f1d2f48bfd87e6213
-
 name:           turing-machine
 version:        0.1.2.0
-description:    Please see the README on GitHub at <https://github.com/CrazyMind102/turing-machine#readme>
-homepage:       https://github.com/CrazyMind102/turing-machine#readme
-bug-reports:    https://github.com/CrazyMind102/turing-machine/issues
+description:    Please see the README on GitHub at <https://gitlab.com/CrazyMind102/turing-machine#readme>
+homepage:       https://gitlab.com/CrazyMind102/turing-machine#readme
+bug-reports:    https://gitlab.com/CrazyMind102/turing-machine/issues
 author:         CrazyMind102
 maintainer:     tim.gravert@gmx-topmail.de
 copyright:      Tim Gravert
@@ -23,11 +17,11 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/CrazyMind102/turing-machine
+  location: https://gitlab.com/CrazyMind102/turing-machine
 
-library libturing-machine
+library
   exposed-modules:
-      Lib
+      Data.TuringMachine
   other-modules:
       Paths_turing_machine
   hs-source-dirs:
@@ -44,7 +38,7 @@ executable turing-machine
   other-modules:
       Paths_turing_machine
   hs-source-dirs:
-      app
+      exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -53,7 +47,7 @@ executable turing-machine
     , optparse-applicative
     , semigroups
     , text
-    , libturing-machine
+    , turing-machine
     , yaml
   default-language: Haskell2010
 
@@ -69,5 +63,5 @@ test-suite turing-machine-test
       base >=4.7 && <5
     , containers
     , text
-    , libturing-machine
+    , turing-machine
   default-language: Haskell2010

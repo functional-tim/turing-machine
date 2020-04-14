@@ -1,4 +1,8 @@
 # Changelog for turing-machine
+## 0.1.2.1
+- Adding of shell.nix for Nix/NixOS user
+- Updating the README.md
+
 ## 0.1.2.0
 - Renaming of the library to libturing-machine
 - Correcting of Version numbers

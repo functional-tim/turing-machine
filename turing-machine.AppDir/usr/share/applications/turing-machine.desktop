@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Exec=turing-machine
+Icon=turing-machine
+Categories=Education;Science;
+Name=Turing machine
+Terminal=true

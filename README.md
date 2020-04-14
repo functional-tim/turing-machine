@@ -76,6 +76,19 @@ $ > cd turing-machine
 $ > stack setup; stack install
 ```
 
+### Using nix
+You need to install stack on your system. Either by downloading it or by your package manager of choice.
+
+Then you download the repository like with cabal. You can also clone it with git.
+
+Afterwards you go into the folder and run `nix-shell` followed by `cabal new-install`.
+
+```
+$ > cd turing-machine
+$ > nix-shell
+$ > cabal new-install
+```
+
 ## Credits
 
 - [Alan Turing](https://en.wikipedia.org/wiki/Alan_Turing) for the idea of the [Turing machine](https://en.wikipedia.org/wiki/Turing_machine)
