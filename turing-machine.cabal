@@ -38,30 +38,20 @@ executable turing-machine
   other-modules:
       Paths_turing_machine
   hs-source-dirs:
-      exe
+      src
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+--    , bricks
     , containers
     , filepath
+--    , microlens
+--    , microlens-th
     , optparse-applicative
     , semigroups
     , text
     , turing-machine
+--    , vector
+--    , vty
     , yaml
-  default-language: Haskell2010
-
-test-suite turing-machine-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_turing_machine
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2
-  build-depends:
-      base >=4.7 && <5
-    , containers
-    , text
-    , turing-machine
   default-language: Haskell2010
