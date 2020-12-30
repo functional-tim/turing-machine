@@ -20,7 +20,6 @@ module Data.TuringMachine
     , stepP
     , Table(Table)
     , Tape(Tape)
-    , toMove
     , TuringMachine(TM)
     ) where
 
@@ -35,8 +34,9 @@ import qualified Data.Text as T
 
 
 -- |The implementation of the Turing machine.
--- The Turing machine has three values: the State it is in, the table of
--- instructions and the tape.
+-- The Turing machine has four values: the State it is in,
+-- the table of instructions, the tape and the number of
+-- steps.
 data TuringMachine = TM State Table Tape Integer deriving(Read)
 
 -- |The State of the Turing machine is saved as a String.
@@ -60,21 +60,22 @@ toMove _ = Nothing
 -- The values of this Map are the instructions.
 -- The instructions are another Map.
 -- The keys of that Map are the read Symbol.
--- The values of that Map are a tuple which tells the Turing machine what
--- to do.
+-- The values of that Map are a tuple which tells the
+-- Turing machine what to do.
 -- The first element of the tuple is the Symbol to write.
 -- The second element is the movement the head has to perform.
--- The third element is the State in which the Turing machine switches
--- afterwads.
+-- The third element is the State in which the Turing machine
+-- switches afterwads.
 data Table = Table (M.Map State (M.Map Char (Char, Move, State))) deriving(Read)
 
--- |Implementation of the tape of the Turing machine. The Symbols are
--- stored in two Strings and a Char.
--- The String on the left is the tape left of the head and the String on
--- the right is the tape right of the head.
+-- |Implementation of the tape of the Turing machine.
+-- The Symbols are stored in two Strings and a Char.
+--
+-- The String on the left is the tape left of the head
+-- and the String on the right is the tape right of the head.
 -- The Char is the Symbol the head is over at a given moment.
--- In this implementation of a Turing machine the head is part of the tape
--- itself.
+-- In this implementation of a Turing machine the head is
+-- part of the tape itself.
 data Tape = Tape T.Text Char T.Text deriving(Read)
 
 
@@ -91,8 +92,8 @@ instance Show Table where
                   tst = showSymbols (M.toList (ts M.! h))
                   nts = M.delete h ts
 
--- showSymbols and its helper function showSymbols' are helpers for the
--- Instance of Show for Table
+-- showSymbols and its helper function showSymbols' are
+-- helpers for the Instance of Show for Table
 showSymbols :: [(Char, (Char, Move, T.Text))] -> String
 showSymbols [] = []
 showSymbols (x:xs) = (showSymbols' x) ++ (showSymbols xs)
@@ -109,8 +110,8 @@ instance Show Tape where
     show (Tape xs y zs) = T.unpack (T.append xs (T.append "[" (T.cons y (T.append "]" zs))))
 
 
---instance FromJSON Move
---instance ToJSON Move
+-- instance FromJSON Move
+-- instance ToJSON Move
 -- Helper functions to read out the Table values
 fstC :: (Char, Move, State) -> Char
 fstC (x, _, _) = x
@@ -153,8 +154,8 @@ stepP tm@(TM s (Table ta) (Tape lt pos rt) n) = do
     return (step tm)
     
 
--- |Running the Turing machine without any output until the Turing machine
--- halts.
+-- |Running the Turing machine without any output until
+-- the Turing machine halts.
 -- It returns the finished Turing machine.
 run :: TuringMachine -> TuringMachine
 run tm@(TM "HALT" ta ts n) = tm
@@ -174,13 +175,13 @@ runP tm@(TM s ta ts n) = do
     ntm <- runP (step tm)
     return ntm
 
-
+-- helper function for run, runP and stepP
 getTape :: TuringMachine -> Tape
 getTape (TM s ta ts n) = ts
 
+-- helper function for run, runP and stepP
 getState :: TuringMachine -> State
 getState (TM s ta ts n) = s
-
 
 -- |Function to count the ones on the tape.
 -- It is primaly good to be used for Busy Beavers and similar programs.

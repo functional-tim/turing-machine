@@ -1,4 +1,9 @@
 # Changelog for turing-machine
+## 0.1.2.2
+- Cleaning up Layout of library
+- Updating the README.md
+- Adding support for nix-build
+
 ## 0.1.2.1
 - Adding of shell.nix for Nix/NixOS user
 - Updating the README.md

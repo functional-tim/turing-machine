@@ -6,7 +6,7 @@ It also includes a console program to run a Turing machine which is read in by a
 ## How to use
 
 ```
-turing-machine - a Turing Machine
+turing-machine - a Turing Machine Simulator
 
 Usage: turing-machine COMMAND [-s|--start-state START-STATE] [-q|--quiet] 
                       [-p|--print]
@@ -81,12 +81,11 @@ You need to install stack on your system. Either by downloading it or by your pa
 
 Then you download the repository like with cabal. You can also clone it with git.
 
-Afterwards you go into the folder and run `nix-shell` followed by `cabal new-install`.
+Afterwards you go into the folder and run `nix-build release.nix`.
 
 ```
 $ > cd turing-machine
-$ > nix-shell
-$ > cabal new-install
+$ > nix-build release.nix
 ```
 
 ## Credits

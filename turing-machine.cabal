@@ -1,7 +1,7 @@
 cabal-version: 1.12
 
 name:           turing-machine
-version:        0.1.2.0
+version:        0.1.2.2
 description:    Please see the README on GitHub at <https://gitlab.com/CrazyMind102/turing-machine#readme>
 homepage:       https://gitlab.com/CrazyMind102/turing-machine#readme
 bug-reports:    https://gitlab.com/CrazyMind102/turing-machine/issues

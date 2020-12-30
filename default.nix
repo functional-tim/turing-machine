@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "turing-machine";
-  version = "0.1.2.0";
+  version = "0.1.2.2";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
@@ -11,7 +11,6 @@ mkDerivation {
   executableHaskellDepends = [
     base containers filepath optparse-applicative semigroups text yaml
   ];
-  testHaskellDepends = [ base containers text ];
   homepage = "https://gitlab.com/CrazyMind102/turing-machine#readme";
   license = stdenv.lib.licenses.bsd3;
 }
