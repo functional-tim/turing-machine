@@ -40,7 +40,7 @@ import qualified Data.Text as T
 data TuringMachine = TM State Table Tape Integer deriving(Read)
 
 -- |The State of the Turing machine is saved as a String.
-type State = T.Text
+type State = String
 
 -- |Implementation of the movement of the head of the Turing machine.
 data Move =
@@ -50,7 +50,7 @@ data Move =
     R
     deriving(Eq, Generic, Read)
 
-toMove :: T.Text -> Maybe Move
+toMove :: String -> Maybe Move
 toMove "L" = Just L
 toMove "R" = Just R
 toMove _ = Nothing
@@ -76,29 +76,29 @@ data Table = Table (M.Map State (M.Map Char (Char, Move, State))) deriving(Read)
 -- The Char is the Symbol the head is over at a given moment.
 -- In this implementation of a Turing machine the head is
 -- part of the tape itself.
-data Tape = Tape T.Text Char T.Text deriving(Read)
+data Tape = Tape String Char String deriving(Read)
 
 
 -- |Instance of Show for TM
 instance Show TuringMachine where
-    show (TM s ta tp n) = "TM\nState: " ++ (T.unpack s) ++ "\n" ++ "Steps: " ++ show n ++ "\n" ++ show ta ++ show tp
+    show (TM s ta tp n) = "TM\nState: " ++ s ++ "\n" ++ "Steps: " ++ show n ++ "\n" ++ show ta ++ show tp
 
 -- |Instance of Show for Table
 instance Show Table where
     show (Table ts)
         | M.null ts = ""
-        | otherwise = (T.unpack h) ++ ":  " ++ tst ++ "\n" ++ (show (Table nts))
+        | otherwise = h ++ ":  " ++ tst ++ "\n" ++ (show (Table nts))
             where h   = head (M.keys ts)
                   tst = showSymbols (M.toList (ts M.! h))
                   nts = M.delete h ts
 
 -- showSymbols and its helper function showSymbols' are
 -- helpers for the Instance of Show for Table
-showSymbols :: [(Char, (Char, Move, T.Text))] -> String
+showSymbols :: [(Char, (Char, Move, String))] -> String
 showSymbols [] = []
 showSymbols (x:xs) = (showSymbols' x) ++ (showSymbols xs)
-showSymbols' :: (Char, (Char, Move, T.Text)) -> String
-showSymbols' (x,(y0,y1,y2)) = [x] ++ ": " ++ "(" ++ [y0] ++ ", " ++ (show y1) ++ ", " ++ (T.unpack y2) ++ ")\t"
+showSymbols' :: (Char, (Char, Move, String)) -> String
+showSymbols' (x,(y0,y1,y2)) = [x] ++ ": " ++ "(" ++ [y0] ++ ", " ++ (show y1) ++ ", " ++ y2 ++ ")\t"
 
 -- |Instance of Show for Move.
 instance Show Move where
@@ -107,7 +107,7 @@ instance Show Move where
 
 -- |Instance of Show for Tape.
 instance Show Tape where
-    show (Tape xs y zs) = T.unpack (T.append xs (T.append "[" (T.cons y (T.append "]" zs))))
+    show (Tape xs y zs) = xs ++ "[" ++ [y] ++ "]" ++ zs
 
 
 -- instance FromJSON Move
@@ -126,10 +126,10 @@ trdC (_, _, x) = x
 -- |This function moves the head of the Turing machine.
 move :: Move -> Tape -> Tape
 move m (Tape lt pos rt)
-  | m == L && T.length lt == 0 = Tape (T.pack ['0']) '0' (T.cons pos rt)
-  | m == L = Tape (T.init lt) (T.last lt) (T.cons pos rt)
-  | m == R && T.length rt == 0 = Tape (T.snoc lt pos) '0' (T.pack ['0'])
-  | m == R = Tape (T.snoc lt pos) (T.head rt) (T.tail rt)
+  | m == L && length lt == 0 = Tape "000000" '0' (pos:rt)
+  | m == L = Tape (init lt) (last lt) (pos:rt)
+  | m == R && length rt == 0 = Tape (lt ++ [pos]) '0' "000000"
+  | m == R = Tape (lt ++ [pos]) (head rt) (tail rt)
 
 -- |Each step of the Turing machine is implemented in this function.
 -- It returns the resulting Turing machine.
@@ -176,17 +176,17 @@ runP tm@(TM s ta ts n) = do
     return ntm
 
 -- helper function for run, runP and stepP
-getTape :: TuringMachine -> Tape
-getTape (TM s ta ts n) = ts
-
--- helper function for run, runP and stepP
 getState :: TuringMachine -> State
 getState (TM s ta ts n) = s
+
+-- helper function for run, runP and stepP
+getTape :: TuringMachine -> Tape
+getTape (TM s ta ts n) = ts
 
 -- |Function to count the ones on the tape.
 -- It is primaly good to be used for Busy Beavers and similar programs.
 count1s :: TuringMachine -> Integer
 count1s (TM s ta (Tape xs y zs) n) = (foldr (+) 0 nxs) + ny + (foldr (+) 0 nzs)
-    where nxs = map (toInteger) (map (digitToInt) (T.unpack xs))
-          nzs = map (toInteger) (map (digitToInt) (T.unpack zs))
+    where nxs = map (toInteger) (map (digitToInt) xs)
+          nzs = map (toInteger) (map (digitToInt) zs)
           ny  = toInteger (digitToInt y)

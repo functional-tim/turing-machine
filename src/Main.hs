@@ -156,11 +156,11 @@ tmParser (TuringMachineParser (Count f) "" False True) = do
 tmParser (TuringMachineParser (Run f) st True _) = do
   file <- fileHandler f
   let tmf = input file
-  return ((run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
+  return ((run (TM st (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
 tmParser (TuringMachineParser (Run f) st False False) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  let tm = TM st (sndT tmf) (trdT tmf) (frtT tmf)
   putStrLn ((show tm) ++ "\n")
   let ntm = run tm
   putStrLn (show ntm)
@@ -168,7 +168,7 @@ tmParser (TuringMachineParser (Run f) st False False) = do
 tmParser (TuringMachineParser (Run f) st False True) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  let tm = TM st (sndT tmf) (trdT tmf) (frtT tmf)
   putStrLn ((show tm) ++ "\n")
   ntm <- runP tm
   return (ntm,f,Nothing)
@@ -176,11 +176,11 @@ tmParser (TuringMachineParser (Run f) st False True) = do
 tmParser (TuringMachineParser (Step f) st True _) = do
   file <- fileHandler f
   let tmf = input file
-  return ((step (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
+  return ((step (TM st (sndT tmf) (trdT tmf) (frtT tmf))),f,Nothing)
 tmParser (TuringMachineParser (Step f) st False _) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  let tm = TM st (sndT tmf) (trdT tmf) (frtT tmf)
   putStrLn ((show tm) ++ "\n")
   let ntm = step tm
   putStrLn (show ntm)
@@ -189,13 +189,13 @@ tmParser (TuringMachineParser (Step f) st False _) = do
 tmParser (TuringMachineParser (Count f) st True _) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = run (TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf))
+  let tm = run (TM st (sndT tmf) (trdT tmf) (frtT tmf))
   let output = Just (count1s tm)
   return (tm,f,output)
 tmParser (TuringMachineParser (Count f) st False False) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  let tm = TM st (sndT tmf) (trdT tmf) (frtT tmf)
   putStrLn ((show tm) ++ "\n")
   let ntm = run tm
   let output = Just (count1s ntm)
@@ -205,7 +205,7 @@ tmParser (TuringMachineParser (Count f) st False False) = do
 tmParser (TuringMachineParser (Count f) st False True) = do
   file <- fileHandler f
   let tmf = input file
-  let tm = TM (T.pack st) (sndT tmf) (trdT tmf) (frtT tmf)
+  let tm = TM st (sndT tmf) (trdT tmf) (frtT tmf)
   putStrLn (show tm)
   ntm <- runP tm
   putStrLn (show ntm)
@@ -216,8 +216,8 @@ tmParser (TuringMachineParser (Count f) st False True) = do
 
 data Input = Input
   { state :: State
-  , table :: M.Map T.Text (M.Map Char (Char,Move,T.Text))
-  , tape  :: (T.Text,Char,T.Text)
+  , table :: M.Map State (M.Map Char (Char,Move,State))
+  , tape  :: (String,Char,String)
   , steps :: Integer
   } deriving(Generic,Read,Show)
 
