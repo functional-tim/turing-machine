@@ -5,4 +5,5 @@ dist-newstyle
 result
 stack.yaml.lock
 *~
-*.yaml.*
+*.yaml.1s
+*.yaml.result
