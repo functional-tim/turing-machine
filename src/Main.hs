@@ -26,7 +26,6 @@ import           System.FilePath
 import           System.IO
 
 import qualified Data.Map.Strict as M
-import qualified Data.Text       as T
 import qualified Data.Yaml       as Y
 
 

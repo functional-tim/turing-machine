@@ -17,7 +17,7 @@ Available options:
                            Which state the Turing machine should start
                            in (default: "")
   -q,--quiet               Whether to be quiet
-  -p,--print               Wheter to print out the step/s
+  -p,--print               Whether to print out the step/s
   -h,--help                Show this help text
 
 Available commands:
