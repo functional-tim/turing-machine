@@ -16,8 +16,8 @@ extra-source-files:
     README.md
 
 source-repository head
-  type: git
-  location: https://gitlab.com/CrazyMind102/turing-machine
+    type: git
+    location: https://github.com/CrazyMind102/turing-machine
 
 library
   exposed-modules:
